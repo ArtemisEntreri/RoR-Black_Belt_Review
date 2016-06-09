@@ -1,0 +1,97 @@
+<h1>Welcome <%= @user.first_name %></h1>  
+<h2><%= link_to 'Edit My Profile', users_edit_path %> | <%= link_to 'Logout', sessions_destroy_path %></h2>
+
+<h3>Here are some events going on in your state</h3>
+
+<table border="1" style="width:100%">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Date</th>
+			<th>Location</th>
+			<th>Host</th>
+			<th>Action/Status</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% @events.each do |event|
+			if event.state == @user.state %>
+			<tr>
+				<td><%= link_to event.name, '/events/'+ event.id.to_s %></td>
+				<td><%= event.date %></td>
+				<td><%= event.city %></td>
+				<td><%= event.host %></td>
+				<%  if !(@plans.empty?) 
+						@plans.each do |plan|
+							if plan.event_id == event.id
+								@status = "Joining... | #{link_to 'Cancel', plans_destroy_path(:user_id => @user.id, :event_id => event.id)}".html_safe
+								break
+							else
+								@status = link_to "Join", plans_create_path(:user_id => @user.id, :event_id => event.id)
+							end
+						end
+					else
+						@status = link_to "Join", plans_create_path(:user_id => @user.id, :event_id => event.id)
+					end%>
+				<td><%= @status %></td>
+			</tr>
+			<%end
+		end%>
+	</tbody>
+</table>
+
+<h3>Here are some of the events going on in other states</h3>
+<table border="1" style="width:100%">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Date</th>
+			<th>Location</th>
+			<th>State</th>
+			<th>Host</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% @events.each do |event|
+			if !(event.state == @user.state) %>
+			<tr>
+				<td><%= link_to event.name, '/events/'+ event.id.to_s %></td>
+				<td><%= event.date %></td>
+				<td><%= event.city %></td>
+				<td><%= event.state %></td>
+				<td><%= event.host %></td>
+				<%  if !(@plans.empty?) 
+						@plans.each do |plan|
+							if plan.event_id == event.id
+								@status = "Joining... | #{link_to 'Cancel', plans_destroy_path(:user_id => @user.id, :event_id => event.id)}".html_safe
+								break
+							else
+								@status = link_to "Join", plans_create_path(:user_id => @user.id, :event_id => event.id)
+							end
+						end
+					else
+						@status = link_to "Join", plans_create_path(:user_id => @user.id, :event_id => event.id)
+					end%>
+				<td><%= @status %></td>
+			</tr>
+			<%end%>
+		<%end%>
+	</tbody>
+</table>
+
+<h2>Add Event</h2>
+<% if !flash[:errors].nil?
+	flash[:errors].each do |error| %>
+		<h4><%= error %></h4>
+	<%end%>
+<%end%>
+<%= simple_form_for @event, url: events_create_path do |f| %>
+	<%= f.input :name, required: false %>
+	<%= f.input :date, required: false %>
+	<%= f.input :city, required: false %>
+	<%= f.input :state, :label => "State", :collection => us_states, :selected => "" %>
+	<%= f.input :host, :as => :hidden, :input_html => {:value => "#{@user.first_name}"} %>
+	<%= f.input :user_id, :as => :hidden, :input_html => { :value => "#{session[:user_id]}"} %>
+	<%= f.button :submit, 'Add Event', class: "btn btn-primary" %>
+<%end%>

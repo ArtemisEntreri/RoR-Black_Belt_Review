@@ -1,0 +1,18 @@
+<h2><%= link_to 'Events Dashboard', events_index_path %> | <%= link_to 'Logout', sessions_destroy_path %></h2>
+
+
+<h1>Edit Your Profile</h1>
+<% if !flash[:errors].nil?
+	flash[:errors].each do |error| %>
+	<h4><%= error %></h4>
+	<%end
+end%>
+<%= simple_form_for @user, url: users_update_path do |f| %>
+	<%= f.input :first_name, required: false %>
+	<%= f.input :last_name, required: false %>
+	<%= f.input :email, required: false %>
+	<%= f.input :city, required: false %>
+	<%= f.input :state, :label => "State", :collection => us_states, :selected => @user.state, required: false%>
+	<%= f.input :password, required: false %>
+	<%= f.button :submit, 'Update', class: "btn btn-primary" %>
+<%end%>

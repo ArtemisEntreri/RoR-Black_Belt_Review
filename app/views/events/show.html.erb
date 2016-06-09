@@ -1,0 +1,53 @@
+<h4><%= link_to "Back To Events", events_index_path %></h4>
+
+<h1><%= @event.name %></h1>
+
+<h3>Host: <%= @event.first_name + " "+ @event.last_name %></h3>
+<h3>Date: <%= @event.date %></h3>
+<h3>Location: <%= @event.city %>, <%= @event.state %></h3>
+<h3>People who are joining the event: <%= @attendees.length %></h3>
+
+<% if !(@attendees.empty?) %>
+	<table border="1" style="width:30%">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Location</th>
+				<th>State</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @attendees.each do |attendee| %>
+				<tr>
+					<td><%= attendee.first_name + " " +attendee.last_name%></td>
+					<td><%= attendee.city %></td>
+					<td><%= attendee.state %></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+<% end %>
+<div id="dis">
+	<h4>Discussion About This Event:</h4>
+	<div id="discussion">
+		<% if !(@comments.empty?)
+			@comments.each do |comment| %>					
+				<p><%= comment.first_name %> says: <%= comment.content %></p>
+				<p>------------------------------</p>
+			<% end %>
+		<% end %>      
+	</div>
+	<h2>Add Comment</h2>
+	<% if flash[:comment_errors]
+		flash[:comment_errors].each do |error| %>
+			<h4><%= error %></h4>
+		<%end%>
+	<%end%>
+	<textarea name="content" form="disc" cols="74" rows="5"></textarea>
+	<form action="/comments/create" id="disc" method="post">
+		<input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden"/>
+		<input type="hidden" name="user_id" value="<%= session[:user_id] %>">
+		<input type="hidden" name="event_id" value="<%= @event.id %>">
+		<input type="Submit" value="Add Comment">
+	</form>
+</div>
